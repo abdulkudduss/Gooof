@@ -16,6 +16,7 @@ import com.example.gooo.exception.ResourceNotFoundException;
 import com.example.gooo.mapper.OrderMapper;
 import com.example.gooo.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -34,6 +36,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponseDTO createOrder(CreateOrderRequest request) {
+        log.info("Creating order with {} items, shippingMethodId={}, currency={}",
+                request.getItems() != null ? request.getItems().size() : 0,
+                request.getShippingMethodId(), request.getCurrencyCode());
         // 1. Создаем объект заказа
         Order order = new Order();
         order.setCurrencyCode(request.getCurrencyCode());
@@ -46,6 +51,8 @@ public class OrderServiceImpl implements OrderService {
         for (OrderItemRequest itemRequest : request.getItems()) {
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Товар не найден"));
+            log.debug("Adding item: productId={}, qty={}, unitPrice={}",
+                    product.getId(), itemRequest.getQuantity(), product.getCurrentPrice());
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order); // Важно для двусторонней связи
@@ -58,10 +65,12 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal itemTotal = product.getCurrentPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
             totalOrderAmount = totalOrderAmount.add(itemTotal);
         }
+        log.info("Items calculated, total={} {}", totalOrderAmount, request.getCurrencyCode());
 
         // 4. Логика доставки (у вас она верная)
         ShippingMethod method = shippingMethodRepository.findById(request.getShippingMethodId())
                 .orElseThrow(() -> new ResourceNotFoundException("Метод доставки не найден"));
+        log.debug("Using shipping method id={} name={}", method.getId(), method.getName());
 
         CourierShipment shipment = new CourierShipment();
         shipment.setOrder(order);
@@ -74,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 5. Сохраняем (CascadeType.ALL сделает всё за нас)
         Order savedOrder = orderRepository.save(order);
+        log.info("Order persisted with id={}", savedOrder.getId());
 
         return orderMapper.toDto(savedOrder, totalOrderAmount);
     }

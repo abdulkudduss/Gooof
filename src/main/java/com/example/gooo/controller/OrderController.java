@@ -9,7 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 @Tag(name = "Order Controller", description = "Управление заказами")
+@Slf4j
 public class OrderController {
 
     private final OrderService orderService;
@@ -36,9 +39,11 @@ public class OrderController {
                     content = @Content)
     })
     @PostMapping
-    public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody CreateOrderRequest request) {
+    public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody CreateOrderRequest request) {
+        log.info("Request to create order for currency: {}", request.getCurrencyCode());
         // Вызываем бизнес-логику
         OrderResponseDTO response = orderService.createOrder(request);
+        log.info("Order created successfully with ID: {}", response.getOrderId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
