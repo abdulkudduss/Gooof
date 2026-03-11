@@ -13,6 +13,7 @@ import com.example.gooo.dto.CreateOrderRequest;
 import com.example.gooo.dto.OrderItemRequest;
 import com.example.gooo.dto.OrderResponseDTO;
 import com.example.gooo.exception.ResourceNotFoundException;
+import com.example.gooo.mapper.OrderMapper;
 import com.example.gooo.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ShippingMethodRepository shippingMethodRepository;
+    private final OrderMapper orderMapper;
 
     @Override
     @Transactional
@@ -73,19 +75,10 @@ public class OrderServiceImpl implements OrderService {
         // 5. Сохраняем (CascadeType.ALL сделает всё за нас)
         Order savedOrder = orderRepository.save(order);
 
-        return convertToResponse(savedOrder, totalOrderAmount);
+        return orderMapper.toDto(savedOrder, totalOrderAmount);
     }
 
     private String generateTrackingNumber() {
         return "TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    }
-
-    private OrderResponseDTO convertToResponse(Order order, BigDecimal totalPrice) {
-        OrderResponseDTO dto = new OrderResponseDTO();
-        dto.setOrderId(order.getId());
-        dto.setStatus(order.getStatus().name());
-        dto.setTotalPrice(totalPrice);
-        dto.setTrackingNumber(order.getShipment().getTrackingNumber());
-        return dto;
     }
 }
