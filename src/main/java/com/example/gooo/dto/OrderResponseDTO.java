@@ -1,0 +1,22 @@
+package com.example.gooo.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+@Data
+@Schema(description = "Ответ о созданном заказе")
+public class OrderResponseDTO {
+    @Schema(description = "ID созданного заказа", example = "42")
+    private Long orderId;
+    
+    @Schema(description = "Статус заказа", example = "NEW")
+    private String status;
+    
+    @Schema(description = "Общая стоимость заказа", example = "1500.50")
+    private BigDecimal totalPrice;
+    
+    @Schema(description = "Трек-номер отправления", example = "TRK-ABC12345")
+    private String trackingNumber;
+}
