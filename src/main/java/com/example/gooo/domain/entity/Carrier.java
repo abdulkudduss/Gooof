@@ -20,5 +20,6 @@ public class Carrier extends BaseEntity {
     private boolean active;
 
     @OneToMany(mappedBy = "carrier", cascade = CascadeType.ALL)
-    private List<ShippingMethod> methods = new ArrayList<>();
+    private List<ShippingMethod>
+            methods = new ArrayList<>();
 }

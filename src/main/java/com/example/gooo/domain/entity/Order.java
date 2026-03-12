@@ -1,5 +1,6 @@
 package com.example.gooo.domain.entity;
 import com.example.gooo.domain.enums.OrderStatus;
+import com.example.gooo.domain.converter.OrderStatusConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.util.List;
 public class Order extends BaseEntity {
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = OrderStatusConverter.class)
     private OrderStatus status = OrderStatus.NEW;
 
     @Column(length = 3, nullable = false)
