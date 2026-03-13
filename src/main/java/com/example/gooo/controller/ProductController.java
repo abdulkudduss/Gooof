@@ -6,12 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -22,13 +18,13 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @Operation(summary = "Получить список всех товаров")
+    @Operation(summary = "Получить список товаров с пагинацией")
     @GetMapping
-    public List<ProductResponseDTO> getAll() {
-        log.info("Request to fetch all products");
-        List<ProductResponseDTO> result = productService.findAll();
-        log.info("Fetched {} products", result.size());
-        return result;
+    public Page<ProductResponseDTO> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Request to fetch products page {} size {}", page, size);
+        return productService.findAll(page, size);
     }
 
     @Operation(summary = "Получить информацию о товаре по ID")

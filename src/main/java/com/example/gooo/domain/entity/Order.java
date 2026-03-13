@@ -21,6 +21,10 @@ public class Order extends BaseEntity {
     @Column(length = 3, nullable = false)
     private String currencyCode;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User customer;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 

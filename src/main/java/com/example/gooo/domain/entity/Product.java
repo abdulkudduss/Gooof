@@ -13,7 +13,10 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class Product extends BaseEntity {
+    @Column( nullable = false)
     private String name;
+
+    @Column(length = 100, nullable = false, unique = true)
     private String sku;
 
     @Column(precision = 19, scale = 4, nullable = false)

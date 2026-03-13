@@ -1,6 +1,7 @@
 package com.example.gooo.domain.entity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -15,6 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 public class Carrier extends BaseEntity {
+    @Column(length = 100, nullable = false)
     private String name;
 
     private boolean active;

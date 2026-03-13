@@ -6,6 +6,7 @@ import lombok.Setter;
 @Table(name = "shipping_methods")
 @Getter @Setter
 public class ShippingMethod extends BaseEntity {
+    @Column(length = 100, nullable = false)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,10 +1,9 @@
 package com.example.gooo.service;
 
 import com.example.gooo.dto.ProductResponseDTO;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface ProductService {
-    List<ProductResponseDTO> findAll();
+    Page<ProductResponseDTO> findAll(int page, int size);
     ProductResponseDTO findById(Long id);
 }

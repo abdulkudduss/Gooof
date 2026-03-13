@@ -10,7 +10,10 @@ import java.math.BigDecimal;
 public class OrderResponseDTO {
     @Schema(description = "ID созданного заказа", example = "42")
     private Long orderId;
-    
+
+    @Schema(description = "Email покупателя", example = "customer@example.com")
+    private String customerEmail;
+
     @Schema(description = "Статус заказа", example = "NEW")
     private String status;
     

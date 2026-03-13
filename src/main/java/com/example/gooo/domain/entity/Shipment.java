@@ -17,6 +17,7 @@ public abstract class Shipment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private ShippingMethod shippingMethod;
 
+    @Column(length = 100)
     private String trackingNumber;
     private LocalDateTime shippedAt;
 }

@@ -1,6 +1,7 @@
 package com.example.gooo.domain.entity;
 
 import com.example.gooo.domain.embeddable.Address;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -14,6 +15,10 @@ import lombok.Setter;
 public class CourierShipment extends Shipment {
     @Embedded
     private Address deliveryAddress;
+
+    @Column(length = 20)
     private String entranceCode;
+
+    @Column(length = 20)
     private String contactPhone;
 }

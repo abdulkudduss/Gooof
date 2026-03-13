@@ -1,6 +1,8 @@
 package com.example.gooo.mapper;
 
 import com.example.gooo.domain.entity.Order;
+import com.example.gooo.domain.projections.OrderView;
+import com.example.gooo.dto.OrderDetailsDTO;
 import com.example.gooo.dto.OrderResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,8 +14,11 @@ import java.math.BigDecimal;
 public interface OrderMapper {
 
     @Mapping(source = "order.id", target = "orderId")
+    @Mapping(source = "order.customer.email", target = "customerEmail")
     @Mapping(source = "order.status", target = "status")
     @Mapping(source = "totalPrice", target = "totalPrice")
     @Mapping(source = "order.shipment.trackingNumber", target = "trackingNumber")
     OrderResponseDTO toDto(Order order, BigDecimal totalPrice);
+
+
 }
