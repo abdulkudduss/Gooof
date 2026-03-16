@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 @Component
-public class CdekPricingStrategy implements ShippingStrategy {
+public class CdekStrategy implements ShippingStrategy {
     @Override
     public String getCarrierName() {
         return "CDEK"; // Должно совпадать с carrier.getName() в БД
