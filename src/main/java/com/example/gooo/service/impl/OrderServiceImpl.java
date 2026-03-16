@@ -7,7 +7,8 @@ import com.example.gooo.domain.repository.CarrierRepository;
 import com.example.gooo.domain.repository.OrderRepository;
 import com.example.gooo.domain.repository.ProductRepository;
 import com.example.gooo.domain.repository.UserRepository;
-import com.example.gooo.service.strategy.ShippingPricingStrategy;
+import com.example.gooo.service.shipment.ShipmentService;
+import com.example.gooo.service.shipment.strategy.ShippingStrategy;
 import com.example.gooo.dto.*;
 import com.example.gooo.exception.ResourceNotFoundException;
 
@@ -31,9 +32,13 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final CarrierRepository carrierRepository;
-    // @Component, реализующие один и тот же интерфейс, сразу в виде коллекции
-    // Spring автоматически соберет сюда CdekPricingStrategy и YldamPricingStrategy
-    private final List<ShippingPricingStrategy> pricingStrategies;
+
+    private final ShipmentService shipmentService;
+    @Override
+    public List<ShippingCostDTO> getDeliveryOptions(Long orderId) {
+        Order order = findOrder(orderId);
+        return shipmentService.calculateOptions(order);
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -102,25 +107,6 @@ public class OrderServiceImpl implements OrderService {
         return new DraftOrderResponse(savedOrder.getId(), savedOrder.getItemsTotal());
     }
 
-    @Override
-    public List<ShippingCostDTO> getDeliveryOptions(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден"));
-
-        double totalWeight = order.getItems().stream()
-                .mapToDouble(item -> item.getProduct().getWeight() * item.getQuantity())
-                .sum();
-        log.info("Total weight for order {}: {} kg", orderId, totalWeight);
-        log.info("Strategies count: {}", pricingStrategies.size());
-        return pricingStrategies.stream()
-                .map(strategy -> {
-                    Carrier carrier = carrierRepository.findByName(strategy.getCarrierCode())
-                            .orElseThrow(() -> new ResourceNotFoundException("Carrier not found: " + strategy.getCarrierCode()));
-                    BigDecimal shippingCost = strategy.calculate(order, totalWeight, carrier);
-                    return new ShippingCostDTO(strategy.getCarrierCode(), shippingCost.toString());
-                })
-                .toList();
-    }
 
 
 
@@ -136,18 +122,13 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus(OrderStatus.PENDING_PAYMENT);
 
-        double totalWeight = order.getItems().stream()
-                .mapToDouble(item -> item.getProduct().getWeight() * item.getQuantity())
-                .sum();
-
-        log.info("Total weight for order {}: {} kg", id, totalWeight);
 
         Carrier carrier = carrierRepository.findByName(request.getCarrierCode())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Курьерская служба не найдена: " + request.getCarrierCode()));
 
-        BigDecimal shippingCost = getPricingStrategy(request.getCarrierCode())
-                .calculate(order, totalWeight, carrier);
+
+        BigDecimal shippingCost = shipmentService.calculateFinalCost(order, request.getCarrierCode());
 
         order.setShippingTotal(shippingCost);
         order.setTotalAmount(order.getItemsTotal().add(shippingCost));
@@ -179,21 +160,18 @@ public class OrderServiceImpl implements OrderService {
                 shipment.getTrackingNumber()
         );
     }
+
+
+    private Order findOrder(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден"));
+    }
+
     private String generateTrackingNumber() {
         return "TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    private ShippingPricingStrategy getPricingStrategy(String carrierCode) {
 
-        return pricingStrategies.stream()
-
-                .filter(strategy -> strategy.getCarrierCode().equalsIgnoreCase(carrierCode))
-
-                .findFirst()
-
-                .orElseThrow(() -> new ResourceNotFoundException("Курьерcкая служба с кодом " + carrierCode + " не найден"));
-
-    }
 
 }
         

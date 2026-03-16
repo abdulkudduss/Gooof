@@ -1,15 +1,15 @@
-package com.example.gooo.service.strategy.impl;
+package com.example.gooo.service.shipment.strategy.impl;
 
 import com.example.gooo.domain.entity.Order;
-import com.example.gooo.service.strategy.ShippingPricingStrategy;
+import com.example.gooo.service.shipment.strategy.ShippingStrategy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
 @Component
-public class YldamPricingStrategy implements ShippingPricingStrategy {
+public class YldamPricingStrategy implements ShippingStrategy {
     @Override
-    public String getCarrierCode() {
+    public String getCarrierName() {
         return "YLDAM";
     }
 
