@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ public class Order extends BaseEntity {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Convert(converter = OrderStatusConverter.class)
-    private OrderStatus status = OrderStatus.NEW;
+    private OrderStatus status = OrderStatus.DRAFT;
 
     @Column(length = 3, nullable = false)
     private String currencyCode;
@@ -30,4 +31,16 @@ public class Order extends BaseEntity {
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Shipment shipment;
+
+    // Сумма только за товары (рассчитывается на Шаге 1)
+    @Column(precision = 19, scale = 4)
+    private BigDecimal itemsTotal;
+
+    // Сумма за доставку (добавляется на Шаге 3)
+    @Column(precision = 19, scale = 4)
+    private BigDecimal shippingTotal;
+
+    // Итоговая сумма: товары + доставка
+    @Column(precision = 19, scale = 4)
+    private BigDecimal totalAmount;
 }

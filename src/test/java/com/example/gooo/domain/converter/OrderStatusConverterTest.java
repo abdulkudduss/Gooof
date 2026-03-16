@@ -10,7 +10,7 @@ class OrderStatusConverterTest {
 
     @Test
     void testConvertToDatabaseColumn() {
-        assertEquals(1, converter.convertToDatabaseColumn(OrderStatus.NEW));
+        assertEquals(1, converter.convertToDatabaseColumn(OrderStatus.DRAFT));
         assertEquals(2, converter.convertToDatabaseColumn(OrderStatus.PENDING_PAYMENT));
         assertEquals(3, converter.convertToDatabaseColumn(OrderStatus.PROCESSING));
         assertEquals(4, converter.convertToDatabaseColumn(OrderStatus.DELIVERED));
@@ -25,7 +25,7 @@ class OrderStatusConverterTest {
 
     @Test
     void testConvertToEntityAttribute() {
-        assertEquals(OrderStatus.NEW, converter.convertToEntityAttribute(1));
+        assertEquals(OrderStatus.DRAFT, converter.convertToEntityAttribute(1));
         assertEquals(OrderStatus.PENDING_PAYMENT, converter.convertToEntityAttribute(2));
         assertEquals(OrderStatus.PROCESSING, converter.convertToEntityAttribute(3));
         assertEquals(OrderStatus.DELIVERED, converter.convertToEntityAttribute(4));

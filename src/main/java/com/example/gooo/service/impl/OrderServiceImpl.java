@@ -3,13 +3,14 @@ package com.example.gooo.service.impl;
 import com.example.gooo.domain.entity.*;
 import com.example.gooo.domain.enums.OrderStatus;
 import com.example.gooo.domain.projections.OrderView;
+import com.example.gooo.domain.repository.CarrierRepository;
 import com.example.gooo.domain.repository.OrderRepository;
 import com.example.gooo.domain.repository.ProductRepository;
-import com.example.gooo.domain.repository.ShippingMethodRepository;
 import com.example.gooo.domain.repository.UserRepository;
+import com.example.gooo.service.strategy.ShippingPricingStrategy;
 import com.example.gooo.dto.*;
 import com.example.gooo.exception.ResourceNotFoundException;
-import com.example.gooo.mapper.OrderMapper;
+
 import com.example.gooo.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,80 +20,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class OrderServiceImpl implements OrderService {
-
-    private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-    private final ShippingMethodRepository shippingMethodRepository;
+    private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final OrderMapper orderMapper;
-
-    @Override
-    @Transactional
-    public OrderResponseDTO createOrder(CreateOrderRequest request) {
-        log.info("Creating order for userId={}, {} items, shippingMethodId={}, currency={}",
-                request.getUserId(),
-                request.getItems() != null ? request.getItems().size() : 0,
-                request.getShippingMethodId(), request.getCurrencyCode());
-        // 1. Создаем объект заказа
-        Order order = new Order();
-        order.setCurrencyCode(request.getCurrencyCode());
-        order.setStatus(OrderStatus.NEW);
-
-        // Находим пользователя
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
-        order.setCustomer(user);
-
-        // 2. Оптимизация: загружаем все продукты одним запросом (по желанию)
-        // 3. Считаем позиции
-        BigDecimal totalOrderAmount = BigDecimal.ZERO;
-
-        for (OrderItemRequest itemRequest : request.getItems()) {
-            Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Товар не найден"));
-            log.debug("Adding item: productId={}, qty={}, unitPrice={}",
-                    product.getId(), itemRequest.getQuantity(), product.getCurrentPrice());
-
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order); // Важно для двусторонней связи
-            orderItem.setProduct(product);
-            orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setPriceAtPurchase(product.getCurrentPrice());
-
-            order.getItems().add(orderItem);
-
-            BigDecimal itemTotal = product.getCurrentPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
-            totalOrderAmount = totalOrderAmount.add(itemTotal);
-        }
-        log.info("Items calculated, total={} {}", totalOrderAmount, request.getCurrencyCode());
-
-        // 4. Логика доставки (у вас она верная)
-        ShippingMethod method = shippingMethodRepository.findById(request.getShippingMethodId())
-                .orElseThrow(() -> new ResourceNotFoundException("Метод доставки не найден"));
-        log.debug("Using shipping method id={} name={}", method.getId(), method.getName());
-
-        CourierShipment shipment = new CourierShipment();
-        shipment.setOrder(order);
-        shipment.setShippingMethod(method);
-        shipment.setDeliveryAddress(request.getDeliveryAddress());
-        shipment.setContactPhone(request.getContactPhone());
-        shipment.setTrackingNumber(generateTrackingNumber()); // Вынесите в метод
-
-        order.setShipment(shipment);
-
-        // 5. Сохраняем (CascadeType.ALL сделает всё за нас)
-        Order savedOrder = orderRepository.save(order);
-        log.info("Order persisted with id={}", savedOrder.getId());
-
-        return orderMapper.toDto(savedOrder, totalOrderAmount);
-    }
-
+    private final CarrierRepository carrierRepository;
+    // @Component, реализующие один и тот же интерфейс, сразу в виде коллекции
+    // Spring автоматически соберет сюда CdekPricingStrategy и YldamPricingStrategy
+    private final List<ShippingPricingStrategy> pricingStrategies;
 
     @Override
     @Transactional(readOnly = true)
@@ -117,7 +58,142 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+    @Override
+    public DraftOrderResponse createDraftOrder(DraftOrderRequest request) {
+        // 1. Находим пользователя
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
+
+        // 2. Создаем базовый заказ (Черновик)
+        Order order = new Order();
+        order.setCustomer(user);
+        order.setCurrencyCode(request.getCurrencyCode());
+        order.setStatus(OrderStatus.DRAFT); // Обязательно добавьте DRAFT в enum OrderStatus
+
+        BigDecimal itemsTotalsum = BigDecimal.ZERO;
+
+        // 3. Добавляем товары и считаем их стоимость
+        for (OrderItemRequest itemRequest : request.getItems()) {
+            Product product = productRepository.findById(itemRequest.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Товар не найден: " + itemRequest.getProductId()));
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order); // Связываем с заказом
+            orderItem.setProduct(product);
+            orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setPriceAtPurchase(product.getCurrentPrice()); // Фиксируем цену на момент добавления
+
+            order.getItems().add(orderItem); // Добавляем в список заказа
+
+            // Плюсуем к общей сумме товаров: цена * количество
+            itemsTotalsum = itemsTotalsum.add(
+                    product.getCurrentPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()))
+            );
+        }
+
+        // 4. Сохраняем сумму товаров в заказ
+        order.setItemsTotal(itemsTotalsum);
+        // Поля shippingTotal и totalAmount пока оставляем пустыми (null), их заполним на Шаге 3
+
+        // 5. Сохраняем заказ в БД
+        Order savedOrder = orderRepository.save(order);
+
+        // 6. Возвращаем ID заказа и сумму фронтенду
+        return new DraftOrderResponse(savedOrder.getId(), savedOrder.getItemsTotal());
+    }
+
+    @Override
+    public List<ShippingCostDTO> getDeliveryOptions(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден"));
+
+        double totalWeight = order.getItems().stream()
+                .mapToDouble(item -> item.getProduct().getWeight() * item.getQuantity())
+                .sum();
+        log.info("Total weight for order {}: {} kg", orderId, totalWeight);
+        log.info("Strategies count: {}", pricingStrategies.size());
+        return pricingStrategies.stream()
+                .map(strategy -> {
+                    Carrier carrier = carrierRepository.findByName(strategy.getCarrierCode())
+                            .orElseThrow(() -> new ResourceNotFoundException("Carrier not found: " + strategy.getCarrierCode()));
+                    BigDecimal shippingCost = strategy.calculate(order, totalWeight, carrier);
+                    return new ShippingCostDTO(strategy.getCarrierCode(), shippingCost.toString());
+                })
+                .toList();
+    }
+
+
+
+    @Override
+    public OrderResponseDTO placeOrder(Long id, OrderRequestDTO request) {
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден"));
+
+        if (order.getStatus() != OrderStatus.DRAFT) {
+            throw new IllegalStateException("Заказ можно разместить только в статусе DRAFT. Текущий статус: " + order.getStatus());
+        }
+
+        order.setStatus(OrderStatus.PENDING_PAYMENT);
+
+        double totalWeight = order.getItems().stream()
+                .mapToDouble(item -> item.getProduct().getWeight() * item.getQuantity())
+                .sum();
+
+        log.info("Total weight for order {}: {} kg", id, totalWeight);
+
+        Carrier carrier = carrierRepository.findByName(request.getCarrierCode())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Курьерская служба не найдена: " + request.getCarrierCode()));
+
+        BigDecimal shippingCost = getPricingStrategy(request.getCarrierCode())
+                .calculate(order, totalWeight, carrier);
+
+        order.setShippingTotal(shippingCost);
+        order.setTotalAmount(order.getItemsTotal().add(shippingCost));
+
+        CourierShipment shipment = (CourierShipment) order.getShipment();
+
+        if (shipment == null) {
+            shipment = new CourierShipment();
+            shipment.setOrder(order);
+            shipment.setTrackingNumber(generateTrackingNumber());
+        }
+
+        shipment.setOriginAddress(request.getOriginAddress());
+        shipment.setDeliveryAddress(request.getDeliveryAddress());
+        shipment.setShippingCost(shippingCost);
+        shipment.setCarrier(carrier);
+
+        order.setShipment(shipment);
+
+        orderRepository.save(order);
+
+        log.info("Order {} placed successfully", id);
+
+        return new OrderResponseDTO(
+                order.getId(),
+                order.getCustomer() != null ? order.getCustomer().getEmail() : null, // customerEmail
+                order.getStatus().name(),
+                order.getTotalAmount(),
+                shipment.getTrackingNumber()
+        );
+    }
     private String generateTrackingNumber() {
         return "TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
+
+    private ShippingPricingStrategy getPricingStrategy(String carrierCode) {
+
+        return pricingStrategies.stream()
+
+                .filter(strategy -> strategy.getCarrierCode().equalsIgnoreCase(carrierCode))
+
+                .findFirst()
+
+                .orElseThrow(() -> new ResourceNotFoundException("Курьерcкая служба с кодом " + carrierCode + " не найден"));
+
+    }
+
 }
+        

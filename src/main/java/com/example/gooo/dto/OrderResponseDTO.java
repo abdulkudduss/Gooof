@@ -1,11 +1,13 @@
 package com.example.gooo.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
+@AllArgsConstructor
 @Schema(description = "Ответ о созданном заказе")
 public class OrderResponseDTO {
     @Schema(description = "ID созданного заказа", example = "42")
@@ -22,4 +24,7 @@ public class OrderResponseDTO {
     
     @Schema(description = "Трек-номер отправления", example = "TRK-ABC12345")
     private String trackingNumber;
+
+
+
 }

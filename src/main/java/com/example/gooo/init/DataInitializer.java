@@ -5,7 +5,6 @@ import com.example.gooo.domain.entity.*;
 import com.example.gooo.domain.enums.UserRole;
 import com.example.gooo.domain.repository.CarrierRepository;
 import com.example.gooo.domain.repository.ProductRepository;
-import com.example.gooo.domain.repository.ShippingMethodRepository;
 import com.example.gooo.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -21,7 +20,6 @@ public class DataInitializer implements CommandLineRunner {
 
     private final ProductRepository productRepository;
     private final CarrierRepository carrierRepository;
-    private final ShippingMethodRepository shippingMethodRepository;
     private final UserRepository userRepository;
 
     @Override
@@ -45,46 +43,42 @@ public class DataInitializer implements CommandLineRunner {
         p1.setName("iPhone 15");
         p1.setSku("APPLE-IPHONE-15");
         p1.setCurrentPrice(new BigDecimal("999.00"));
+        p1.setWeight(5.0);
 
         Product p2 = new Product();
         p2.setName("MacBook Pro");
         p2.setSku("APPLE-MBP-14");
         p2.setCurrentPrice(new BigDecimal("1999.00"));
+        p2.setWeight(1.0);
 
         Product p3 = new Product();
         p3.setName("AirPods Pro");
         p3.setSku("APPLE-AIRPODS-PRO");
         p3.setCurrentPrice(new BigDecimal("249.00"));
+        p3.setWeight(0.5);
 
         productRepository.saveAll(List.of(p1, p2, p3));
     }
 
     private void initShipmentData() {
         Carrier c1 = new Carrier();
-        c1.setName("Global Express");
+        c1.setName("CDEK");
         c1.setActive(true);
+        c1.setBasePrice(new BigDecimal("200.00"));
+        c1.setBaseWeightLimit(5.0);
+        c1.setPricePerExtraKg(new BigDecimal("40.00"));
         carrierRepository.save(c1);
 
-        ShippingMethod m1 = new ShippingMethod();
-        m1.setName("Economy");
-        m1.setCarrier(c1);
-
-        ShippingMethod m2 = new ShippingMethod();
-        m2.setName("Priority");
-        m2.setCarrier(c1);
-
-        shippingMethodRepository.saveAll(List.of(m1, m2));
 
         Carrier c2 = new Carrier();
-        c2.setName("Postal Service");
+        c2.setName("YLDAM");
         c2.setActive(true);
+        c2.setBasePrice(new BigDecimal("230.00"));
+        c2.setBaseWeightLimit(6.0);
+        c2.setPricePerExtraKg(new BigDecimal("45.00"));
         carrierRepository.save(c2);
 
-        ShippingMethod m3 = new ShippingMethod();
-        m3.setName("Standard");
-        m3.setCarrier(c2);
 
-        shippingMethodRepository.saveAll(List.of(m3));
     }
 
     private void initUsers() {

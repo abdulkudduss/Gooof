@@ -1,10 +1,16 @@
 package com.example.gooo.service;
 
-import com.example.gooo.dto.CreateOrderRequest;
-import com.example.gooo.dto.OrderDetailsDTO;
-import com.example.gooo.dto.OrderResponseDTO;
+import com.example.gooo.dto.*;
+import jakarta.validation.Valid;
+
+import java.util.List;
 
 public interface OrderService {
-    OrderResponseDTO createOrder(CreateOrderRequest request);
     OrderDetailsDTO getOrderDetails(Long id);
+
+    DraftOrderResponse createDraftOrder(@Valid DraftOrderRequest request);
+
+    List<ShippingCostDTO> getDeliveryOptions(Long id);
+
+    OrderResponseDTO placeOrder(Long id,OrderRequestDTO request);
 }

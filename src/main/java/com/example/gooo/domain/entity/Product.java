@@ -21,4 +21,8 @@ public class Product extends BaseEntity {
 
     @Column(precision = 19, scale = 4, nullable = false)
     private BigDecimal currentPrice;
+
+    @Column(nullable = false)
+    private Double weight;
+
 }

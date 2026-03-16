@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,12 @@ public class Carrier extends BaseEntity {
 
     private boolean active;
 
-    @OneToMany(mappedBy = "carrier", cascade = CascadeType.ALL)
-    private List<ShippingMethod>
-            methods = new ArrayList<>();
+    @Column(nullable = false)
+    private Double baseWeightLimit; // Базовый вес (например, 5.0 для СДЭК)
+
+    @Column(nullable = false)
+    private BigDecimal basePrice; // Базовая цена (например, 200 для СДЭК)
+
+    @Column(nullable = false)
+    private BigDecimal pricePerExtraKg; // Цена за каждый доп. кг (например, 40 для СДЭК)
 }
