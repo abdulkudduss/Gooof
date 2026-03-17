@@ -4,8 +4,11 @@ import com.example.gooo.domain.entity.Carrier;
 import com.example.gooo.domain.entity.Order;
 import com.example.gooo.domain.repository.CarrierRepository;
 import com.example.gooo.dto.ShippingCostDTO;
+import com.example.gooo.dto.cdek.CdekTariffOptionDTO;
+import com.example.gooo.dto.shipment.CalculationResult;
 import com.example.gooo.exception.ResourceNotFoundException;
 import com.example.gooo.service.shipment.strategy.ShippingStrategy;
+import com.example.gooo.service.shipment.strategy.impl.CdekStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,37 +23,49 @@ public class ShipmentServiceImpl implements ShipmentService {
     private final CarrierRepository carrierRepository;
 
     @Override
-    public List<ShippingCostDTO> calculateOptions(Order order) {
+    public List<ShippingCostDTO> calculateOptions(Order order, Integer receiverCityCode) {
         double weight = calculateWeight(order);
-
-        // 1. Достаем из БД ТОЛЬКО активных перевозчиков (где active = true)
         List<Carrier> activeCarriers = carrierRepository.findByActiveTrue();
 
-        // 2. Считаем цену для каждого активного перевозчика
         return activeCarriers.stream()
                 .map(carrier -> {
                     ShippingStrategy strategy = strategyFactory.getStrategy(carrier.getName());
-                    BigDecimal cost = strategy.calculate(order, weight, carrier);
-
-                    return new ShippingCostDTO(carrier.getName(), cost.toString());
+                    // Получаем результат расчета (со стоимостью или ошибкой)
+                    CalculationResult result = strategy.calculate(order, weight, carrier, receiverCityCode);
+                    
+                    if (result.isSuccessful()) {
+                        return new ShippingCostDTO(carrier.getName(), result.getCost());
+                    } else {
+                        // Возвращаем вариант с описанием ошибки
+                        return new ShippingCostDTO(carrier.getName(), null, result.getError());
+                    }
                 })
                 .toList();
     }
 
     @Override
-    public BigDecimal calculateFinalCost(Order order, String carrierName) {
+    public BigDecimal calculateFinalCost(Order order, String carrierName, Integer receiverCityCode) {
         double weight = calculateWeight(order);
-
-        // Ищем перевозчика по имени, чтобы взять его тарифы
         Carrier carrier = carrierRepository.findByName(carrierName)
-                .orElseThrow(() -> new ResourceNotFoundException("Перевозчик не найден: " + carrierName));
+                .orElseThrow(() -> new ResourceNotFoundException("Перевозчик не найден"));
 
-        // Если кто-то пытается оформить заказ через отключенную доставку - бросаем ошибку
-        if (!carrier.isActive()) {
-            throw new IllegalStateException("Выбранный способ доставки временно недоступен");
+        CalculationResult result = strategyFactory.getStrategy(carrierName)
+                .calculate(order, weight, carrier, receiverCityCode);
+        
+        if (!result.isSuccessful()) {
+            throw new ResourceNotFoundException("Доставка данным перевозчиком (" + carrierName + ") недоступна: " + result.getError());
         }
-
-        return strategyFactory.getStrategy(carrierName).calculate(order, weight, carrier);
+        
+        return result.getCost();
+    }
+    @Override
+    public List<CdekTariffOptionDTO> getCdekTariffOptions(Order order, Integer receiverCityCode) {
+        double weight = calculateWeight(order);
+        ShippingStrategy strategy = strategyFactory.getStrategy("CDEK");
+        if (strategy instanceof CdekStrategy cdekStrategy) {
+            return cdekStrategy.calculateTariffList(weight, receiverCityCode);
+        }
+        return List.of();
     }
 
     private double calculateWeight(Order order) {

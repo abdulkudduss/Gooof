@@ -1,6 +1,7 @@
 package com.example.gooo.controller;
 
 import com.example.gooo.dto.*;
+import com.example.gooo.dto.cdek.CdekTariffOptionDTO;
 import com.example.gooo.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -52,10 +53,14 @@ public class OrderController {
 
     @GetMapping("/{id}/delivery-options")
     @Operation(summary = "Шаг 2: Получение доступных вариантов доставки для заказа")
-    public List<ShippingCostDTO> getDeliveryOptions(@PathVariable Long id) {
-        // Логика получения доступных вариантов доставки для заказа
-        // Например, можно вызвать сервис, который вернет список ShippingCostDTO
-        return orderService.getDeliveryOptions(id);
+    public List<ShippingCostDTO> getDeliveryOptions(@PathVariable Long id, @RequestParam Integer receiverCityCode) {
+        return orderService.getDeliveryOptions(id,receiverCityCode);
+    }
+
+    @GetMapping("/{id}/cdek-tariffs")
+    @Operation(summary = "Дополнительно: Получение всех доступных тарифов СДЭК для заказа")
+    public List<CdekTariffOptionDTO> getCdekTariffs(@PathVariable Long id, @RequestParam Integer receiverCityCode) {
+        return orderService.getCdekTariffOptions(id, receiverCityCode);
     }
 
 
