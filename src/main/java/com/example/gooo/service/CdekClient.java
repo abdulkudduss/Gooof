@@ -95,6 +95,14 @@ public class CdekClient {
         }
     }
 
+    private String formatDateRange(CdekTariffResponse.DateRange range) {
+        if (range == null) return null;
+        if (range.getMin() != null && range.getMin().equals(range.getMax())) {
+            return range.getMin();
+        }
+        return range.getMin() + " - " + range.getMax();
+    }
+
     public CalculationResult calculateTariff(CdekTariffRequest requestBody) {
         String token = getToken();
         if (token == null) {
@@ -135,7 +143,13 @@ public class CdekClient {
 
             // Если был указан конкретный тариф (tariff_code в запросе), результат будет в корневом delivery_sum
             if (body.getDelivery_sum() != null) {
-                return CalculationResult.success(body.getDelivery_sum());
+                return CalculationResult.builder()
+                        .cost(body.getDelivery_sum())
+                        .totalSum(body.getTotal_sum())
+                        .periodMin(body.getPeriod_min())
+                        .periodMax(body.getPeriod_max())
+                        .deliveryDateRange(formatDateRange(body.getDelivery_date_range()))
+                        .build();
             }
 
             // Если запрашивались все тарифы (через /calculator/tariffs - но мы используем /tariff)
@@ -150,7 +164,14 @@ public class CdekClient {
                 return CalculationResult.failure(errorMsg);
             }
 
-            return CalculationResult.success(body.getTariff_codes().get(0).getDelivery_sum());
+            CdekTariffResponse.TariffResult first = body.getTariff_codes().get(0);
+            return CalculationResult.builder()
+                    .cost(first.getDelivery_sum())
+                    .totalSum(first.getTotal_sum())
+                    .periodMin(first.getPeriod_min())
+                    .periodMax(first.getPeriod_max())
+                    .deliveryDateRange(formatDateRange(first.getDelivery_date_range()))
+                    .build();
 
         } catch (HttpClientErrorException e) {
             CdekTariffResponse errorBody = e.getResponseBodyAs(CdekTariffResponse.class);

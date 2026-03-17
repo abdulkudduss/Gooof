@@ -28,19 +28,20 @@ class CdekIntegrationTest {
     }
 
     @Test
-    void testCalculateTariffList() {
+    void testCalculateTariff() {
         CdekTariffRequest request = CdekTariffRequest.builder()
+                .tariff_code(137)
                 .from_location(new CdekTariffRequest.Location(44))
                 .to_location(new CdekTariffRequest.Location(270))
                 .packages(List.of(new CdekTariffRequest.Package(1.0)))
                 .build();
 
-        List<CdekTariffResponse.TariffResult> results = cdekClient.calculateTariffList(request);
-        System.out.println("[DEBUG_LOG] CDEK Tariff List Size: " + results.size());
-        results.forEach(res -> System.out.println("[DEBUG_LOG] Tariff: " + res.getTariff_name() + " (" + res.getTariff_code() + ") = " + res.getDelivery_sum()));
-        
-        assertNotNull(results);
-        // В песочнице должен вернуться хотя бы один тариф
-        assertFalse(results.isEmpty(), "Tariff list should not be empty for Moscow -> Novosibirsk");
+        CalculationResult result = cdekClient.calculateTariff(request);
+
+        assertTrue(result.isSuccessful());
+        assertNotNull(result.getCost());
+        assertNotNull(result.getTotalSum());
+        assertNotNull(result.getPeriodMin());
+        assertNotNull(result.getPeriodMax());
     }
 }

@@ -32,13 +32,16 @@ public class ShipmentServiceImpl implements ShipmentService {
                     ShippingStrategy strategy = strategyFactory.getStrategy(carrier.getName());
                     // Получаем результат расчета (со стоимостью или ошибкой)
                     CalculationResult result = strategy.calculate(order, weight, carrier, receiverCityCode);
-                    
-                    if (result.isSuccessful()) {
-                        return new ShippingCostDTO(carrier.getName(), result.getCost());
-                    } else {
-                        // Возвращаем вариант с описанием ошибки
-                        return new ShippingCostDTO(carrier.getName(), null, result.getError());
-                    }
+
+                    return ShippingCostDTO.builder()
+                            .carrier(carrier.getName())
+                            .cost(result.getCost())
+                            .totalSum(result.getTotalSum() != null ? result.getTotalSum() : result.getCost())
+                            .periodMin(result.getPeriodMin())
+                            .periodMax(result.getPeriodMax())
+                            .deliveryDateRange(result.getDeliveryDateRange())
+                            .error(result.getError())
+                            .build();
                 })
                 .toList();
     }
