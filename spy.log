@@ -1,0 +1,2 @@
+1773725047385|1|statement|connection 0|url jdbc:p6spy:postgresql://localhost:5432/appdb|select version()|select version()
+1773725048200|2|statement|connection 0|url jdbc:p6spy:postgresql://localhost:5432/appdb|select * from information_schema.sequences|select * from information_schema.sequences

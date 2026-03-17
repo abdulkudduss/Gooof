@@ -66,16 +66,16 @@ public class DataInitializer implements CommandLineRunner {
         c1.setActive(true);
         c1.setBasePrice(new BigDecimal("200.00"));
         c1.setBaseWeightLimit(5.0);
-        c1.setPricePerExtraKg(new BigDecimal("40.00"));
+        c1.setPricePerExtraKg(new BigDecimal("25.00"));
         carrierRepository.save(c1);
 
 
         Carrier c2 = new Carrier();
         c2.setName("YLDAM");
         c2.setActive(true);
-        c2.setBasePrice(new BigDecimal("230.00"));
-        c2.setBaseWeightLimit(6.0);
-        c2.setPricePerExtraKg(new BigDecimal("45.00"));
+        c2.setBasePrice(new BigDecimal("100.00"));
+        c2.setBaseWeightLimit(10.0);
+        c2.setPricePerExtraKg(new BigDecimal("15.00"));
         carrierRepository.save(c2);
 
 

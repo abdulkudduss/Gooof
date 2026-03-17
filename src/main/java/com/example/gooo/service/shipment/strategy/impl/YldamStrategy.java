@@ -1,6 +1,8 @@
 package com.example.gooo.service.shipment.strategy.impl;
 
+import com.example.gooo.domain.entity.Carrier;
 import com.example.gooo.domain.entity.Order;
+import com.example.gooo.dto.shipment.CalculationResult;
 import com.example.gooo.service.shipment.strategy.ShippingStrategy;
 import org.springframework.stereotype.Component;
 
@@ -14,12 +16,13 @@ public class YldamStrategy implements ShippingStrategy {
     }
 
     @Override
-    public BigDecimal calculate(Order order, double totalWeight, com.example.gooo.domain.entity.Carrier carrier) {
+    public CalculationResult calculate(Order order, double totalWeight, Carrier carrier, Integer receiverCityCode) {
         BigDecimal basePrice = carrier.getBasePrice();
-        double baseWeightLimit = carrier.getBaseWeightLimit();
+        Double baseWeightLimit = carrier.getBaseWeightLimit();
         BigDecimal pricePerExtraKg = carrier.getPricePerExtraKg();
 
-        if (totalWeight <= baseWeightLimit) return basePrice;
-        return basePrice.add(BigDecimal.valueOf(Math.ceil(totalWeight - baseWeightLimit)).multiply(pricePerExtraKg));
+        if (totalWeight <= baseWeightLimit) return CalculationResult.success(basePrice);
+        BigDecimal cost = basePrice.add(BigDecimal.valueOf(Math.ceil(totalWeight - baseWeightLimit)).multiply(pricePerExtraKg));
+        return CalculationResult.success(cost);
     }
 }
