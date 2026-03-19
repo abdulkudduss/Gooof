@@ -1,4 +1,4 @@
-package com.example.gooo.service.shipment.strategy.impl;
+package com.example.gooo.service.shipment.strategy.impl.yldam;
 
 import com.example.gooo.domain.entity.Carrier;
 import com.example.gooo.domain.entity.Order;

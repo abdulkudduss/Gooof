@@ -1,14 +1,12 @@
 package com.example.gooo;
 
-import com.example.gooo.dto.cdek.CdekTariffRequest;
-import com.example.gooo.dto.cdek.CdekTariffResponse;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest;
 import com.example.gooo.dto.shipment.CalculationResult;
-import com.example.gooo.service.CdekClient;
+import com.example.gooo.service.shipment.strategy.impl.cdek.CdekClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

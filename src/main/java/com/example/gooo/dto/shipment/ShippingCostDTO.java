@@ -1,4 +1,4 @@
-package com.example.gooo.dto;
+package com.example.gooo.dto.shipment;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

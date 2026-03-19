@@ -1,7 +1,9 @@
 package com.example.gooo.service;
 
 import com.example.gooo.dto.*;
-import com.example.gooo.dto.cdek.CdekTariffOptionDTO;
+import com.example.gooo.dto.shipment.ShippingCostDTO;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffOptionDTO;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -16,4 +18,6 @@ public interface OrderService {
     OrderResponseDTO placeOrder(Long id,OrderRequestDTO request);
 
     List<CdekTariffOptionDTO> getCdekTariffOptions(Long id, Integer receiverCityCode);
+
+    CdekTariffListResponse getTariffList();
 }

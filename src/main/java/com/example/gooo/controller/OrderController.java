@@ -1,7 +1,9 @@
 package com.example.gooo.controller;
 
 import com.example.gooo.dto.*;
-import com.example.gooo.dto.cdek.CdekTariffOptionDTO;
+import com.example.gooo.dto.shipment.ShippingCostDTO;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffOptionDTO;
 import com.example.gooo.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -71,5 +73,9 @@ public class OrderController {
         // Логика подтверждения заказа и выбора способа доставки
         OrderResponseDTO response = orderService.placeOrder( id,request);
         return ResponseEntity.ok(response);
+    }
+    @GetMapping("/tariffs")
+    public ResponseEntity<CdekTariffListResponse> getCdekTariffsList() {
+        return ResponseEntity.ok(orderService.getTariffList());
     }
 }

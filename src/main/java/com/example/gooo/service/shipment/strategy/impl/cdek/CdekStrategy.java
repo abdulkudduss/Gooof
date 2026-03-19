@@ -1,18 +1,16 @@
-package com.example.gooo.service.shipment.strategy.impl;
+package com.example.gooo.service.shipment.strategy.impl.cdek;
 
 import com.example.gooo.domain.entity.Carrier;
 import com.example.gooo.domain.entity.Order;
-import com.example.gooo.dto.cdek.CdekTariffOptionDTO;
-import com.example.gooo.dto.cdek.CdekTariffRequest;
-import com.example.gooo.dto.cdek.CdekTariffResponse;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffOptionDTO;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse;
 import com.example.gooo.dto.shipment.CalculationResult;
-import com.example.gooo.service.CdekClient;
 import com.example.gooo.service.shipment.strategy.ShippingStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 

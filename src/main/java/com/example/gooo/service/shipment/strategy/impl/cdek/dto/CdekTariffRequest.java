@@ -1,4 +1,4 @@
-package com.example.gooo.dto.cdek;
+package com.example.gooo.service.shipment.strategy.impl.cdek.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

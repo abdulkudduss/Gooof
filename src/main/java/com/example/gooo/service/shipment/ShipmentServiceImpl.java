@@ -3,12 +3,12 @@ package com.example.gooo.service.shipment;
 import com.example.gooo.domain.entity.Carrier;
 import com.example.gooo.domain.entity.Order;
 import com.example.gooo.domain.repository.CarrierRepository;
-import com.example.gooo.dto.ShippingCostDTO;
-import com.example.gooo.dto.cdek.CdekTariffOptionDTO;
+import com.example.gooo.dto.shipment.ShippingCostDTO;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffOptionDTO;
 import com.example.gooo.dto.shipment.CalculationResult;
 import com.example.gooo.exception.ResourceNotFoundException;
 import com.example.gooo.service.shipment.strategy.ShippingStrategy;
-import com.example.gooo.service.shipment.strategy.impl.CdekStrategy;
+import com.example.gooo.service.shipment.strategy.impl.cdek.CdekStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
