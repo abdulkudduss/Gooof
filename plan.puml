@@ -1,0 +1,13 @@
+@startuml
+' Используем стандартную библиотеку, которая часто уже кэширована или доступна по коротким ссылкам
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+Person(customer, "Покупатель", "Клиент магазина, оформляющий заказ")
+System(orders_system, "Система Orders", "Позволяет пользователям оформлять заказы и отслеживать их статус")
+
+System_Ext(payment_gw, "Платежный шлюз", "Обработка платежей (HTTP)")
+System_Ext(notification_svc, "Сервис уведомлений", "Отправка уведомлений клиенту (???)")
+
+Rel(customer, orders_system, "Оформляет заказ", "HTTPS")
+Rel(orders_system, payment_gw, "Запрос на оплату", "HTTP/JSON")
+Rel(orders_system, notification_svc, "Запрос на отправку уведомления", "???")
+@enduml

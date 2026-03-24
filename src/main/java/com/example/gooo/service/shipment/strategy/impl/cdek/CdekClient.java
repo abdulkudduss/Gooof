@@ -202,7 +202,9 @@ public class CdekClient {
                     .body(CdekTariffListResponse.class);
         }catch (Exception e) {
             log.error("Error fetching CDEK tariff list: {}", e.getMessage());
-            return new CdekTariffListResponse(); // Возвращаем пустой список при ошибке
+            CdekTariffListResponse response = new CdekTariffListResponse();
+            response.setTariff_codes(List.of()); // Возвращаем пустой список при ошибке\
+            return response;
         }
     }
 }

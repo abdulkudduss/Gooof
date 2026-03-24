@@ -1,7 +1,6 @@
 package com.example.gooo.domain.repository;
 
 import com.example.gooo.domain.entity.Product;
-import com.example.gooo.domain.projections.ProductView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

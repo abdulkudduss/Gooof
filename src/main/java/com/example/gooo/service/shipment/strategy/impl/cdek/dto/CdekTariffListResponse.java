@@ -1,6 +1,7 @@
 package com.example.gooo.service.shipment.strategy.impl.cdek.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
@@ -13,7 +14,8 @@ public class CdekTariffListResponse {
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private class TariffCode {
+    public static class TariffCode {
+        @JsonProperty("tariff_name")
         private String name;
         private List<DeliveryMode> delivery_modes;
 
@@ -21,7 +23,7 @@ public class CdekTariffListResponse {
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private class DeliveryMode {
+    public static class DeliveryMode {
         private Integer delivery_mode;
         private String delivery_mode_name;
         private Integer tariff_code;

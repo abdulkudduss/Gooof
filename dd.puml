@@ -1,0 +1,494 @@
+@startuml
+class com.example.gooo.dto.shipment.CalculationResult {
+- BigDecimal cost
+- BigDecimal totalSum
+- Integer periodMin
+- Integer periodMax
+- String deliveryDateRange
+- String error
++ {static} CalculationResult success(BigDecimal)
++ {static} CalculationResult failure(String)
++ boolean isSuccessful()
+}
+
+
+interface com.example.gooo.service.ProductService {
+~ Page<ProductResponseDTO> findAll(int,int)
+~ ProductResponseDTO findById(Long)
+}
+
+class com.example.gooo.domain.entity.Carrier {
+- String name
+- boolean active
+- Double baseWeightLimit
+- BigDecimal basePrice
+- BigDecimal pricePerExtraKg
+}
+
+interface com.example.gooo.service.shipment.strategy.ShippingStrategy {
+~ String getCarrierName()
+~ CalculationResult calculate(Order,double,Carrier,Integer)
+}
+
+class com.example.gooo.dto.ErrorResponse {
+- int status
+- String error
+- String message
+- LocalDateTime timestamp
+}
+
+class com.example.gooo.service.shipment.ShippingStrategyFactory {
+- List<ShippingStrategy> strategies
++ ShippingStrategy getStrategy(String)
+}
+
+
+interface com.example.gooo.domain.repository.CarrierRepository {
+~ Optional<Carrier> findByName(String)
+~ List<Carrier> findByActiveTrue()
+}
+
+interface com.example.gooo.mapper.OrderMapper {
+~ OrderResponseDTO toDto(Order,BigDecimal)
+}
+
+class com.example.gooo.dto.DraftOrderRequest {
+- Long userId
+- String currencyCode
+- List<OrderItemRequest> items
+}
+
+enum com.example.gooo.domain.enums.UserRole {
++  CUSTOMER
++  ADMIN
++  MODERATOR
+- int id
++ int getId()
++ {static} UserRole fromId(int)
+}
+
+
+interface com.example.gooo.service.shipment.ShipmentService {
+~ List<ShippingCostDTO> calculateOptions(Order,Integer)
+~ BigDecimal calculateFinalCost(Order,String,Integer)
+~ List<CdekTariffOptionDTO> getCdekTariffOptions(Order,Integer)
+~ CdekTariffListResponse getAvailableTariffList()
+}
+
+class com.example.gooo.service.shipment.strategy.impl.yldam.YldamStrategy {
++ String getCarrierName()
++ CalculationResult calculate(Order,double,Carrier,Integer)
+}
+
+class com.example.gooo.domain.entity.User {
+- String email
+- String password
+- boolean active
+- UserRole role
+- UserProfile profile
+- List<Order> orders
+}
+
+class com.example.gooo.config.OpenApiConfig {
++ OpenAPI customOpenAPI()
+}
+
+interface com.example.gooo.service.OrderService {
+~ OrderDetailsDTO getOrderDetails(Long)
+~ DraftOrderResponse createDraftOrder(DraftOrderRequest)
+~ List<ShippingCostDTO> getDeliveryOptions(Long,Integer)
+~ OrderResponseDTO placeOrder(Long,OrderRequestDTO)
+~ List<CdekTariffOptionDTO> getCdekTariffOptions(Long,Integer)
+}
+
+abstract class com.example.gooo.domain.entity.BaseEntity {
+- Long id
+- Long version
+}
+
+abstract class com.example.gooo.domain.entity.Shipment {
+- Order order
+- Carrier carrier
+- BigDecimal shippingCost
+- String trackingNumber
+}
+
+class com.example.gooo.controller.OrderController {
+- OrderService orderService
++ ResponseEntity<DraftOrderResponse> createDraftOrder(DraftOrderRequest)
++ OrderDetailsDTO getOrderDetails(Long)
++ List<ShippingCostDTO> getDeliveryOptions(Long,Integer)
++ List<CdekTariffOptionDTO> getCdekTariffs(Long,Integer)
++ ResponseEntity<OrderResponseDTO> confirmOrder(Long,OrderRequestDTO)
+}
+
+
+class com.example.gooo.domain.entity.Product {
+- String name
+- String sku
+- BigDecimal currentPrice
+- Double weight
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse {
+- List<TariffCode> tariff_codes
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse$TariffCode {
+- String name
+- List<DeliveryMode> delivery_modes
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse$DeliveryMode {
+- Integer delivery_mode
+- String delivery_mode_name
+- Integer tariff_code
+}
+
+class com.example.gooo.exception.GlobalExceptionHandler {
++ ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException)
++ ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException)
++ ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException)
++ ResponseEntity<ErrorResponse> handleGenericException(Exception)
+- String formatFieldError(FieldError)
+}
+
+class com.example.gooo.dto.OrderRequestDTO {
+- String carrierCode
+- Address originAddress
+- Address deliveryAddress
+}
+
+class com.example.gooo.domain.converter.OrderStatusConverter {
++ Integer convertToDatabaseColumn(OrderStatus)
++ OrderStatus convertToEntityAttribute(Integer)
+}
+
+class com.example.gooo.domain.entity.UserProfile {
+- User user
+- String firstName
+- String lastName
+- String phone
+- Address defaultAddress
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTokenResponse {
+- String access_token
+- String token_type
+- Integer expires_in
++ String access_token()
++ String token_type()
++ Integer expires_in()
+}
+
+
+interface com.example.gooo.domain.repository.UserRepository {
+~ Optional<User> findByEmail(String)
+}
+
+enum com.example.gooo.domain.enums.OrderStatus {
++  DRAFT
++  PENDING_PAYMENT
++  PROCESSING
++  DELIVERED
++  CANCELLED
++  REFUNDED
+- int id
++ int getId()
++ {static} OrderStatus fromId(int)
+}
+
+
+class com.example.gooo.domain.converter.UserRoleConverter {
++ Integer convertToDatabaseColumn(UserRole)
++ UserRole convertToEntityAttribute(Integer)
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse {
+- BigDecimal delivery_sum
+- BigDecimal total_sum
+- Integer period_min
+- Integer period_max
+- DateRange delivery_date_range
+- List<TariffResult> tariff_codes
+- List<Error> errors
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse$DateRange {
+- String min
+- String max
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse$TariffResult {
+- String tariff_name
+- String tariff_description
+- Integer tariff_code
+- BigDecimal delivery_sum
+- BigDecimal total_sum
+- Integer period_min
+- Integer period_max
+- DateRange delivery_date_range
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse$Error {
+- String code
+- String message
+}
+
+class com.example.gooo.dto.OrderItemRequest {
+- Long productId
+- Integer quantity
+}
+
+interface com.example.gooo.domain.repository.OrderItemRepository {
+}
+interface com.example.gooo.domain.repository.OrderRepository {
+~ Optional<OrderView> findOrderDetailsNative(Long)
+}
+
+class com.example.gooo.domain.entity.CourierShipment {
+- Address originAddress
+- Address deliveryAddress
+- String entranceCode
+- String contactPhone
+}
+
+class com.example.gooo.domain.embeddable.Address {
+- String city
+- String street
+- String houseNumber
+- String zipCode
+- String countryCode
+}
+
+interface com.example.gooo.domain.repository.UserProfileRepository {
+}
+interface com.example.gooo.domain.repository.CourierShipmentRepository {
+}
+interface com.example.gooo.domain.projections.OrderView {
+~ LocalDateTime getOrderDate()
+~ String getCustomerName()
+~ BigDecimal getTotalAmount()
+}
+
+interface com.example.gooo.domain.repository.ProductRepository {
+~ Optional<T> findById(Long,Class<T>)
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffOptionDTO {
+- String name
+- String description
+- Integer code
+- BigDecimal cost
+- Integer minDays
+- Integer maxDays
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.CdekClient {
+- String apiUrl
+- String account
+- String password
+- RestClient restClient
+- String cachedToken
+- long tokenExpiresAt
++ String getToken()
++ List<CdekTariffResponse.TariffResult> calculateTariffList(CdekTariffRequest)
+- String formatDateRange(CdekTariffResponse.DateRange)
++ CalculationResult calculateTariff(CdekTariffRequest)
++ CdekTariffListResponse getTariffList()
+}
+
+
+class com.example.gooo.controller.ProductController {
+- ProductService productService
++ Page<ProductResponseDTO> getAll(int,int)
++ ProductResponseDTO getOne(Long)
+}
+
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest {
+- Integer tariff_code
+- Location from_location
+- Location to_location
+- List<Package> packages
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest$Location {
+- Integer code
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest$Package {
+- Double weight
+}
+
+interface com.example.gooo.domain.projections.ProductView {
+~ String getName()
+}
+
+class com.example.gooo.dto.shipment.ShippingCostDTO {
+- String carrier
+- BigDecimal cost
+- BigDecimal totalSum
+- Integer periodMin
+- Integer periodMax
+- String deliveryDateRange
+- String error
+}
+
+class com.example.gooo.config.RestClientConfig {
++ RestClient.Builder restClientBuilder()
+}
+
+class com.example.gooo.controller.ShipmentController {
+- ShipmentService shipmentService
++ ResponseEntity<CdekTariffListResponse> getCdekTariffsList()
+}
+
+
+class com.example.gooo.exception.ResourceNotFoundException {
+}
+interface com.example.gooo.domain.repository.ShipmentRepository {
+}
+class com.example.gooo.domain.entity.Order {
+- LocalDateTime createdAt
+- OrderStatus status
+- String currencyCode
+- User customer
+- List<OrderItem> items
+- Shipment shipment
+}
+
+class com.example.gooo.service.shipment.ShipmentServiceImpl {
+- ShippingStrategyFactory strategyFactory
+- CarrierRepository carrierRepository
++ List<ShippingCostDTO> calculateOptions(Order,Integer)
++ BigDecimal calculateFinalCost(Order,String,Integer)
++ List<CdekTariffOptionDTO> getCdekTariffOptions(Order,Integer)
++ CdekTariffListResponse getAvailableTariffList()
+- double calculateWeight(Order)
+}
+
+
+class com.example.gooo.dto.ProductResponseDTO {
+- Long id
+- String name
+- String sku
+- BigDecimal price
+}
+
+class com.example.gooo.dto.DraftOrderResponse {
+- Long orderId
+- BigDecimal itemsTotal
+}
+
+class com.example.gooo.service.shipment.strategy.impl.cdek.CdekStrategy {
+- CdekClient cdekClient
+- Integer fromLocationCode
++ String getCarrierName()
++ CalculationResult calculate(Order,double,Carrier,Integer)
++ List<CdekTariffOptionDTO> calculateTariffList(double,Integer)
++ CdekTariffListResponse getAvaibleTariffList()
+}
+
+
+class com.example.gooo.domain.entity.OrderItem {
+- Order order
+- Product product
+- Integer quantity
+- BigDecimal priceAtPurchase
+}
+
+class com.example.gooo.init.DataInitializer {
+- ProductRepository productRepository
+- CarrierRepository carrierRepository
+- UserRepository userRepository
++ void run(String)
+- void initProducts()
+- void initShipmentData()
+- void initUsers()
+}
+
+
+class com.example.gooo.GoooApplication {
++ {static} void main(String[])
+}
+
+interface com.example.gooo.mapper.ProductMapper {
+~ ProductResponseDTO toDto(Product)
+~ ProductResponseDTO toDto(ProductView)
+}
+
+class com.example.gooo.dto.OrderDetailsDTO {
+- String date
+- String userName
+- String totalPrice
+}
+
+class com.example.gooo.dto.OrderResponseDTO {
+- Long orderId
+- String customerEmail
+- String status
+- BigDecimal totalPrice
+- String trackingNumber
+}
+
+class com.example.gooo.service.impl.ProductServiceImpl {
+- ProductRepository productRepository
+- ProductMapper productMapper
++ Page<ProductResponseDTO> findAll(int,int)
++ ProductResponseDTO findById(Long)
+}
+
+
+class com.example.gooo.service.impl.OrderServiceImpl {
+- OrderRepository orderRepository
+- ProductRepository productRepository
+- CarrierRepository carrierRepository
+- UserRepository userRepository
+- OrderMapper orderMapper
+- ShipmentService shipmentService
+- CdekClient cdekClient
++ DraftOrderResponse createDraftOrder(DraftOrderRequest)
++ List<ShippingCostDTO> getDeliveryOptions(Long,Integer)
++ OrderResponseDTO placeOrder(Long,OrderRequestDTO)
++ OrderDetailsDTO getOrderDetails(Long)
++ List<CdekTariffOptionDTO> getCdekTariffOptions(Long,Integer)
+- String generateTrackingNumber()
+}
+
+
+
+
+com.example.gooo.domain.entity.BaseEntity <|-- com.example.gooo.domain.entity.Carrier
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.gooo.domain.repository.CarrierRepository
+com.example.gooo.service.shipment.strategy.ShippingStrategy <|.. com.example.gooo.service.shipment.strategy.impl.yldam.YldamStrategy
+com.example.gooo.domain.entity.BaseEntity <|-- com.example.gooo.domain.entity.User
+com.example.gooo.domain.entity.BaseEntity <|-- com.example.gooo.domain.entity.Shipment
+com.example.gooo.domain.entity.BaseEntity <|-- com.example.gooo.domain.entity.Product
+com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse +.. com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse$TariffCode
+com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse +.. com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse$DeliveryMode
+jakarta.persistence.AttributeConverter <|.. com.example.gooo.domain.converter.OrderStatusConverter
+com.example.gooo.domain.entity.BaseEntity <|-- com.example.gooo.domain.entity.UserProfile
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.gooo.domain.repository.UserRepository
+jakarta.persistence.AttributeConverter <|.. com.example.gooo.domain.converter.UserRoleConverter
+com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse +.. com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse$DateRange
+com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse +.. com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse$TariffResult
+com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse +.. com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse$Error
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.gooo.domain.repository.OrderItemRepository
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.gooo.domain.repository.OrderRepository
+com.example.gooo.domain.entity.Shipment <|-- com.example.gooo.domain.entity.CourierShipment
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.gooo.domain.repository.UserProfileRepository
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.gooo.domain.repository.CourierShipmentRepository
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.gooo.domain.repository.ProductRepository
+com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest +.. com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest$Location
+com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest +.. com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest$Package
+com.example.gooo.exception.RuntimeException <|-- com.example.gooo.exception.ResourceNotFoundException
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.gooo.domain.repository.ShipmentRepository
+com.example.gooo.domain.entity.BaseEntity <|-- com.example.gooo.domain.entity.Order
+com.example.gooo.service.shipment.ShipmentService <|.. com.example.gooo.service.shipment.ShipmentServiceImpl
+com.example.gooo.service.shipment.strategy.ShippingStrategy <|.. com.example.gooo.service.shipment.strategy.impl.cdek.CdekStrategy
+com.example.gooo.domain.entity.BaseEntity <|-- com.example.gooo.domain.entity.OrderItem
+org.springframework.boot.CommandLineRunner <|.. com.example.gooo.init.DataInitializer
+com.example.gooo.service.ProductService <|.. com.example.gooo.service.impl.ProductServiceImpl
+com.example.gooo.service.OrderService <|.. com.example.gooo.service.impl.OrderServiceImpl
+@enduml

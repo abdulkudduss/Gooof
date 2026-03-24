@@ -170,11 +170,6 @@ public class OrderServiceImpl implements OrderService {
         return shipmentService.getCdekTariffOptions(order, receiverCityCode);
     }
 
-    @Override
-    public CdekTariffListResponse getTariffList() {
-        return cdekClient.getTariffList();
-    }
-
     private String generateTrackingNumber() {
         return "TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }

@@ -74,8 +74,5 @@ public class OrderController {
         OrderResponseDTO response = orderService.placeOrder( id,request);
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/tariffs")
-    public ResponseEntity<CdekTariffListResponse> getCdekTariffsList() {
-        return ResponseEntity.ok(orderService.getTariffList());
-    }
+
 }

@@ -4,6 +4,7 @@ import com.example.gooo.domain.entity.Carrier;
 import com.example.gooo.domain.entity.Order;
 import com.example.gooo.domain.repository.CarrierRepository;
 import com.example.gooo.dto.shipment.ShippingCostDTO;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse;
 import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffOptionDTO;
 import com.example.gooo.dto.shipment.CalculationResult;
 import com.example.gooo.exception.ResourceNotFoundException;
@@ -69,6 +70,17 @@ public class ShipmentServiceImpl implements ShipmentService {
             return cdekStrategy.calculateTariffList(weight, receiverCityCode);
         }
         return List.of();
+    }
+
+    @Override
+    public CdekTariffListResponse getAvailableTariffList() {
+        ShippingStrategy strategy = strategyFactory.getStrategy("CDEK");
+        if (strategy instanceof CdekStrategy cdekStrategy) {
+            return cdekStrategy.getAvaibleTariffList();
+        }
+        CdekTariffListResponse response = new CdekTariffListResponse();
+        response.setTariff_codes(List.of()); // Возвращаем пустой список при ошибке\
+        return response;
     }
 
     private double calculateWeight(Order order) {

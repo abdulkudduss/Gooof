@@ -1,0 +1,346 @@
+@startuml
+
+/' diagram meta data start
+config=StructureConfiguration;
+{
+  "projectClassification": {
+    "searchMode": "OpenProject", // OpenProject, AllProjects
+    "includedProjects": "",
+    "pathEndKeywords": "*.impl",
+    "isClientPath": "",
+    "isClientName": "",
+    "isTestPath": "",
+    "isTestName": "",
+    "isMappingPath": "",
+    "isMappingName": "",
+    "isDataAccessPath": "",
+    "isDataAccessName": "",
+    "isDataStructurePath": "",
+    "isDataStructureName": "",
+    "isInterfaceStructuresPath": "",
+    "isInterfaceStructuresName": "",
+    "isEntryPointPath": "",
+    "isEntryPointName": "",
+    "treatFinalFieldsAsMandatory": false
+  },
+  "graphRestriction": {
+    "classPackageExcludeFilter": "",
+    "classPackageIncludeFilter": "",
+    "classNameExcludeFilter": "",
+    "classNameIncludeFilter": "",
+    "methodNameExcludeFilter": "",
+    "methodNameIncludeFilter": "",
+    "removeByInheritance": "", // inheritance/annotation based filtering is done in a second step
+    "removeByAnnotation": "",
+    "removeByClassPackage": "", // cleanup the graph after inheritance/annotation based filtering is done
+    "removeByClassName": "",
+    "cutMappings": false,
+    "cutEnum": true,
+    "cutTests": true,
+    "cutClient": true,
+    "cutDataAccess": true,
+    "cutInterfaceStructures": true,
+    "cutDataStructures": true,
+    "cutGetterAndSetter": true,
+    "cutConstructors": true
+  },
+  "graphTraversal": {
+    "forwardDepth": 3,
+    "backwardDepth": 3,
+    "classPackageExcludeFilter": "",
+    "classPackageIncludeFilter": "",
+    "classNameExcludeFilter": "",
+    "classNameIncludeFilter": "",
+    "methodNameExcludeFilter": "",
+    "methodNameIncludeFilter": "",
+    "hideMappings": false,
+    "hideDataStructures": false,
+    "hidePrivateMethods": true,
+    "hideInterfaceCalls": true, // indirection: implementation -> interface (is hidden) -> implementation
+    "onlyShowApplicationEntryPoints": false, // root node is included
+    "useMethodCallsForStructureDiagram": "ForwardOnly" // ForwardOnly, BothDirections, No
+  },
+  "details": {
+    "aggregation": "GroupByClass", // ByClass, GroupByClass, None
+    "showClassGenericTypes": true,
+    "showMethods": true,
+    "showMethodParameterNames": true,
+    "showMethodParameterTypes": true,
+    "showMethodReturnType": true,
+    "showPackageLevels": 2,
+    "showDetailedClassStructure": true
+  },
+  "rootClass": "com.example.gooo.service.shipment.ShippingStrategyFactory",
+  "extensionCallbackMethod": "" // qualified.class.name#methodName - signature: public static String method(String)
+}
+diagram meta data end '/
+
+
+
+digraph g {
+    rankdir="TB"
+    splines=polyline
+    
+
+'nodes 
+subgraph cluster_1322970774 { 
+   	label=example
+	labeljust=l
+	fillcolor="#ececec"
+	style=filled
+   
+   subgraph cluster_134743348 { 
+   	label=gooo
+	labeljust=l
+	fillcolor="#d8d8d8"
+	style=filled
+   
+   CalculationResult1813104254[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)CalculationResult</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   cost: BigDecimal [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   deliveryDateRange: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   error: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   periodMax: Integer [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   periodMin: Integer [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   totalSum: BigDecimal [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ builder(): CalculationResultBuilder</TD></TR>
+<TR><TD ALIGN="LEFT" >+ failure(error: String): CalculationResult</TD></TR>
+<TR><TD ALIGN="LEFT" >+ success(cost: BigDecimal): CalculationResult</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+CdekClient1638725344[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)CdekClient</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   account: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   apiUrl: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   cachedToken: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   password: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   restClient: RestClient [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   tokenExpiresAt: long [1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ calculateTariff(requestBody: CdekTariffRequest): CalculationResult</TD></TR>
+<TR><TD ALIGN="LEFT" >+ calculateTariffList(requestBody: CdekTariffRequest): List&lt;TariffResult&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" >- formatDateRange(range: DateRange): String</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+CdekStrategy1638725344[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)CdekStrategy</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   cdekClient: CdekClient [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   fromLocationCode: Integer [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ calculate(order: Order, totalWeight: double, carrier: Carrier, receiverCityCode: Integer): CalculationResult</TD></TR>
+<TR><TD ALIGN="LEFT" >+ calculateTariffList(totalWeight: double, receiverCityCode: Integer): List&lt;CdekTariffOptionDTO&gt;</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+CdekTariffOptionDTO1118631377[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)CdekTariffOptionDTO</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   code: Integer [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   cost: BigDecimal [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   description: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   maxDays: Integer [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   minDays: Integer [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   name: String [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ builder(): CdekTariffOptionDTOBuilder</TD></TR>
+<TR><TD ALIGN="LEFT" ># canEqual(other: Object): boolean</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+CdekTariffRequest1118631377[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)CdekTariffRequest</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   from_location: Location [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   packages: List&lt;Package&gt; [0..*]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   tariff_code: Integer [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   to_location: Location [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ builder(): CdekTariffRequestBuilder</TD></TR>
+<TR><TD ALIGN="LEFT" ># canEqual(other: Object): boolean</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Location1761178553[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Location</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   code: Integer [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" ># canEqual(other: Object): boolean</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+OrderController1144720017[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)OrderController</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   orderService: OrderService [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ confirmOrder(id: Long, request: OrderRequestDTO): ResponseEntity&lt;OrderResponseDTO&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" >+ createDraftOrder(request: DraftOrderRequest): ResponseEntity&lt;DraftOrderResponse&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" >+ getCdekTariffs(id: Long, receiverCityCode: Integer): List&lt;CdekTariffOptionDTO&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" >+ getDeliveryOptions(id: Long, receiverCityCode: Integer): List&lt;ShippingCostDTO&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" >+ getOrderDetails(id: Long): OrderDetailsDTO</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+OrderServiceImpl1804764306[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)OrderServiceImpl</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   carrierRepository: CarrierRepository [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   cdekClient: CdekClient [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   orderMapper: OrderMapper [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   orderRepository: OrderRepository [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   productRepository: ProductRepository [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   shipmentService: ShipmentService [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   userRepository: UserRepository [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ createDraftOrder(request: DraftOrderRequest): DraftOrderResponse</TD></TR>
+<TR><TD ALIGN="LEFT" >- generateTrackingNumber(): String</TD></TR>
+<TR><TD ALIGN="LEFT" >+ getCdekTariffOptions(id: Long, receiverCityCode: Integer): List&lt;CdekTariffOptionDTO&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" >+ getDeliveryOptions(id: Long, receiverCityCode: Integer): List&lt;ShippingCostDTO&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" >+ getOrderDetails(id: Long): OrderDetailsDTO</TD></TR>
+<TR><TD ALIGN="LEFT" >+ placeOrder(id: Long, request: OrderRequestDTO): OrderResponseDTO</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Package1761178553[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Package</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   weight: Double [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" ># canEqual(other: Object): boolean</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+ShipmentController1144720017[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)ShipmentController</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   shipmentService: ShipmentService [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+ShipmentServiceImpl1544303592[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)ShipmentServiceImpl</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   carrierRepository: CarrierRepository [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   strategyFactory: ShippingStrategyFactory [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ calculateFinalCost(order: Order, carrierName: String, receiverCityCode: Integer): BigDecimal</TD></TR>
+<TR><TD ALIGN="LEFT" >+ calculateOptions(order: Order, receiverCityCode: Integer): List&lt;ShippingCostDTO&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" >- calculateWeight(order: Order): double</TD></TR>
+<TR><TD ALIGN="LEFT" >+ getCdekTariffOptions(order: Order, receiverCityCode: Integer): List&lt;CdekTariffOptionDTO&gt;</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+ShippingStrategyFactory1544303592[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)ShippingStrategyFactory</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   strategies: List&lt;ShippingStrategy&gt; [0..*]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ getStrategy(carrierName: String): ShippingStrategy</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+YldamStrategy718567260[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)YldamStrategy</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ calculate(order: Order, totalWeight: double, carrier: Carrier, receiverCityCode: Integer): CalculationResult</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+} 
+} 
+
+'edges    
+CdekStrategy1638725344 -> CalculationResult1813104254[label="calculate() -> failure()"];
+CdekStrategy1638725344 -> CdekClient1638725344[label="cdekClient
+[0..1]"];
+CdekStrategy1638725344 -> CdekTariffOptionDTO1118631377[label="calculateTariffList() -> builder()"];
+CdekTariffRequest1118631377 -> Location1761178553[label="from_location
+[0..1]"];
+CdekTariffRequest1118631377 -> Location1761178553[label="to_location
+[0..1]"];
+CdekTariffRequest1118631377 -> Package1761178553[label="packages
+[0..*]"];
+OrderController1144720017 -> OrderServiceImpl1804764306[label="orderService
+[0..1]", arrowhead=none];
+OrderServiceImpl1804764306 -> ShipmentServiceImpl1544303592[label="shipmentService
+[0..1]", arrowhead=none];
+ShipmentController1144720017 -> ShipmentServiceImpl1544303592[label="shipmentService
+[0..1]", arrowhead=none];
+ShipmentServiceImpl1544303592 -> ShippingStrategyFactory1544303592[label="strategyFactory
+[0..1]"];
+ShippingStrategyFactory1544303592 -> CdekStrategy1638725344[arrowhead=none];
+ShippingStrategyFactory1544303592 -> YldamStrategy718567260[arrowhead=none];
+    
+}
+@enduml

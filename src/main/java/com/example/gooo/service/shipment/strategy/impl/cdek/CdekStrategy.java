@@ -2,6 +2,7 @@ package com.example.gooo.service.shipment.strategy.impl.cdek;
 
 import com.example.gooo.domain.entity.Carrier;
 import com.example.gooo.domain.entity.Order;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse;
 import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffOptionDTO;
 import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffRequest;
 import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffResponse;
@@ -64,5 +65,9 @@ public class CdekStrategy implements ShippingStrategy {
                         .maxDays(res.getPeriod_max())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public CdekTariffListResponse getAvaibleTariffList() {
+        return cdekClient.getTariffList();
     }
 }

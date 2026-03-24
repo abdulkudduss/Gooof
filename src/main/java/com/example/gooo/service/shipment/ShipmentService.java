@@ -2,6 +2,7 @@ package com.example.gooo.service.shipment;
 
 import com.example.gooo.domain.entity.Order;
 import com.example.gooo.dto.shipment.ShippingCostDTO;
+import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffListResponse;
 import com.example.gooo.service.shipment.strategy.impl.cdek.dto.CdekTariffOptionDTO;
 
 import java.math.BigDecimal;
@@ -14,4 +15,6 @@ public interface ShipmentService {
     BigDecimal calculateFinalCost(Order order, String carrierName, Integer receiverCityCode);
 
     List<CdekTariffOptionDTO> getCdekTariffOptions(Order order, Integer receiverCityCode);
+
+    CdekTariffListResponse getAvailableTariffList();
 }

@@ -19,5 +19,5 @@ public interface OrderService {
 
     List<CdekTariffOptionDTO> getCdekTariffOptions(Long id, Integer receiverCityCode);
 
-    CdekTariffListResponse getTariffList();
+
 }
